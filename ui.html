@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      padding: 10px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    
+    #header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    #header h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+    
+    #close-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    #code-input {
+      width: 100%;
+      height: 200px;
+      padding: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      resize: vertical;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+    
+    #convert-button {
+      background-color: #18A0FB;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-weight: 500;
+      cursor: pointer;
+      display: block;
+      margin: 0 auto;
+    }
+    
+    #convert-button:hover {
+      background-color: #0D8EE5;
+    }
+    
+    #feedback {
+      margin-top: 16px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    
+    .success {
+      background-color: #E3F2E3;
+      color: #276C3B;
+      border: 1px solid #B0DAB9;
+    }
+    
+    .error {
+      background-color: #FFECEC;
+      color: #C41E3D;
+      border: 1px solid #FFADAD;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="header">
+    <h2>Quasar to Figma Converter</h2>
+    <button id="close-button" title="Fechar">✕</button>
+  </div>
+  
+  <textarea id="code-input" placeholder="Cole aqui o código do componente Vue.js/Quasar (incluindo <template> e <script>)"></textarea>
+  
+  <button id="convert-button">Converter para Figma</button>
+  
+  <div id="feedback"></div>
+
+  <script>
+    document.getElementById('close-button').onclick = () => {
+      parent.postMessage({ pluginMessage: { type: 'close' } }, '*');
+    };
+
+    document.getElementById('convert-button').onclick = () => {
+      const codeInput = document.getElementById('code-input').value;
+      
+      if (!codeInput.trim()) {
+        showFeedback('Erro: Por favor, insira o código do componente Quasar.', 'error');
+        return;
+      }
+      
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'convert-component',
+          code: codeInput
+        } 
+      }, '*');
+    };
+    
+    function showFeedback(message, type) {
+      const feedbackEl = document.getElementById('feedback');
+      feedbackEl.innerHTML = message;
+      feedbackEl.className = type;
+      feedbackEl.style.display = 'block';
+    }
+    
+    // Recebe mensagens do código principal
+    window.onmessage = (event) => {
+      const message = event.data.pluginMessage;
+      
+      if (message.type === 'conversion-result') {
+        if (message.success) {
+          showFeedback('Componente convertido com sucesso!', 'success');
+        } else {
+          showFeedback(`Erro: ${message.error}`, 'error');
+        }
+      }
+    };
+  </script>
+</body>
+</html>
