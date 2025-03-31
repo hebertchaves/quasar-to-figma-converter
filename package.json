@@ -1,31 +1,18 @@
 {
-  "name": "@figma/plugin-typings",
-  "version": "1.109.0",
-  "description": "Typings for the Figma Plugin API",
-  "main": "",
-  "scripts": {
-    "prettier": "npm run prettier-path -- '**/*.{ts,js}'",
-    "prettier:check": "npm run prettier-path:check -- '**/*.{ts,js}'",
-    "prettier-path": "prettier --write",
-    "prettier-path:check": "prettier --check",
-    "test": "tsc"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/figma/plugin-typings.git"
-  },
-  "keywords": [
-    "figma",
-    "plugin",
-    "typings"
-  ],
-  "author": "Figma",
-  "license": "MIT License",
-  "bugs": {
-    "url": "https://github.com/figma/plugin-typings/issues"
-  },
-  "homepage": "https://github.com/figma/plugin-typings#readme",
-  "devDependencies": {
-    "prettier": "^2.6.1"
-  }
+    "name": "quasar-to-figma-converter",
+    "version": "1.0.0",
+    "description": "Plugin para converter componentes Quasar em componentes Figma",
+    "main": "code.js",
+    "scripts": {
+        "build": "copyfiles code.js ui.html manifest.json dist",
+        "watch": "chokidar 'code.js' 'ui.html' 'manifest.json' -c 'npm run build'"
+    },
+    "author": "Seu Nome",
+    "license": "MIT",
+    "devDependencies": {
+        "@figma/plugin-typings": "^1.82.0",
+        "chokidar": "^4.0.3",
+        "copyfiles": "^2.4.1",
+        "typescript": "^5.2.2"
+    }
 }
