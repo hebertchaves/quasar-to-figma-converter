@@ -1,7 +1,7 @@
 // Mostrar a UI
 figma.showUI(__html__, { width: 450, height: 550 });
 
-// Cores padrão do Quasar (versão expandida)
+// Cores padrão do Quasar
 var quasarColors = {
   'primary': { r: 0.1, g: 0.5, b: 0.9 },
   'secondary': { r: 0.33, g: 0.33, b: 0.33 },
@@ -15,6 +15,173 @@ var quasarColors = {
   'black': { r: 0, g: 0, b: 0 },
   'grey': { r: 0.5, g: 0.5, b: 0.5 }
 };
+// Mapeamento de classes CSS Quasar para propriedades Figma
+const quasarClassesMap = {
+  // Margens
+  'q-ma-none': { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0 },
+  'q-ma-xs': { marginTop: 4, marginRight: 4, marginBottom: 4, marginLeft: 4 },
+  'q-ma-sm': { marginTop: 8, marginRight: 8, marginBottom: 8, marginLeft: 8 },
+  'q-ma-md': { marginTop: 16, marginRight: 16, marginBottom: 16, marginLeft: 16 },
+  'q-ma-lg': { marginTop: 24, marginRight: 24, marginBottom: 24, marginLeft: 24 },
+  'q-ma-xl': { marginTop: 32, marginRight: 32, marginBottom: 32, marginLeft: 32 },
+  
+  // Padding
+  'q-pa-none': { paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0 },
+  'q-pa-xs': { paddingTop: 4, paddingRight: 4, paddingBottom: 4, paddingLeft: 4 },
+  'q-pa-sm': { paddingTop: 8, paddingRight: 8, paddingBottom: 8, paddingLeft: 8 },
+  'q-pa-md': { paddingTop: 16, paddingRight: 16, paddingBottom: 16, paddingLeft: 16 },
+  'q-pa-lg': { paddingTop: 24, paddingRight: 24, paddingBottom: 24, paddingLeft: 24 },
+  'q-pa-xl': { paddingTop: 32, paddingRight: 32, paddingBottom: 32, paddingLeft: 32 },
+  
+  // Classes de texto
+  'text-h1': { fontSize: 48, fontWeight: 'bold', letterSpacing: -0.5 },
+  'text-h2': { fontSize: 40, fontWeight: 'bold', letterSpacing: -0.4 },
+  'text-h3': { fontSize: 34, fontWeight: 'bold', letterSpacing: -0.3 },
+  'text-h4': { fontSize: 28, fontWeight: 'bold', letterSpacing: -0.2 },
+  'text-h5': { fontSize: 24, fontWeight: 'bold', letterSpacing: -0.1 },
+  'text-h6': { fontSize: 20, fontWeight: 'bold', letterSpacing: 0 },
+  'text-subtitle1': { fontSize: 16, fontWeight: 'regular', letterSpacing: 0.15 },
+  'text-subtitle2': { fontSize: 14, fontWeight: 'medium', letterSpacing: 0.1 },
+  'text-body1': { fontSize: 16, fontWeight: 'regular', letterSpacing: 0.5 },
+  'text-body2': { fontSize: 14, fontWeight: 'regular', letterSpacing: 0.25 },
+  
+  // Classes de alinhamento
+  'text-left': { textAlignHorizontal: 'LEFT' },
+  'text-right': { textAlignHorizontal: 'RIGHT' },
+  'text-center': { textAlignHorizontal: 'CENTER' },
+  'text-justify': { textAlignHorizontal: 'JUSTIFIED' },
+  
+  // Classes de flexbox
+  'row': { layoutMode: 'HORIZONTAL' },
+  'column': { layoutMode: 'VERTICAL' },
+  'items-start': { counterAxisAlignItems: 'MIN' },
+  'items-center': { counterAxisAlignItems: 'CENTER' },
+  'items-end': { counterAxisAlignItems: 'MAX' },
+  'justify-start': { primaryAxisAlignItems: 'MIN' },
+  'justify-center': { primaryAxisAlignItems: 'CENTER' },
+  'justify-end': { primaryAxisAlignItems: 'MAX' },
+  'justify-between': { primaryAxisAlignItems: 'SPACE_BETWEEN' },
+  'content-start': { counterAxisAlignContent: 'MIN' },
+  'content-center': { counterAxisAlignContent: 'CENTER' },
+  'content-end': { counterAxisAlignContent: 'MAX' },
+  
+  // Classes de sombras
+  'shadow-1': { effects: [createShadowEffect(0, 1, 3, 0.12, 0, 1, 2, 0.24)] },
+  'shadow-2': { effects: [createShadowEffect(0, 3, 5, 0.12, 0, 1, 9, 0.25)] },
+  'shadow-3': { effects: [createShadowEffect(0, 5, 11, 0.12, 0, 2, 8, 0.25)] },
+  
+  // Classes de borda
+  'rounded-borders': { cornerRadius: 4 },
+  'no-border-radius': { cornerRadius: 0 },
+};
+// Aplicar classes CSS do Quasar a um nó Figma
+function applyQuasarClasses(node, classes) {
+  if (!Array.isArray(classes)) {
+    classes = classes.split(' ').filter(function(cls) { return !!cls; });
+  }
+  
+  console.log('Aplicando classes:', classes);
+  
+  for (var i = 0; i < classes.length; i++) {
+    var className = classes[i];
+    
+    // Classes de cores de fundo
+    if (className.startsWith('bg-')) {
+      var colorName = className.substring(3);
+      if (quasarColors[colorName]) {
+        node.fills = [{ type: 'SOLID', color: quasarColors[colorName] }];
+      }
+    }
+    // Classes de cores de texto
+    else if (className.startsWith('text-') && quasarColors[className.substring(5)]) {
+      // Se for uma classe de cor de texto e não um tamanho ou estilo
+      var colorName = className.substring(5);
+      if (node.type === 'TEXT') {
+        node.fills = [{ type: 'SOLID', color: quasarColors[colorName] }];
+      }
+    }
+    // Outras classes mapeadas
+    else if (quasarClassesMap[className]) {
+      var properties = quasarClassesMap[className];
+      for (var prop in properties) {
+        if (properties.hasOwnProperty(prop)) {
+          try {
+            node[prop] = properties[prop];
+          } catch (error) {
+            console.warn('Não foi possível aplicar a propriedade ' + prop + ' ao nó: ' + error.message);
+          }
+        }
+      }
+    }
+    // Classes específicas com valores dinâmicos
+    else if (className.match(/q-pa-(\w+)-(\w+)/)) {
+      // Por exemplo, q-pa-x-md para padding horizontal médio
+      var match = className.match(/q-pa-(\w+)-(\w+)/);
+      var direction = match[1];
+      var size = match[2];
+      applyPaddingByDirectionAndSize(node, direction, size);
+    }
+  }
+}
+
+// Aplicar padding específico por direção e tamanho
+function applyPaddingByDirectionAndSize(node, direction, size) {
+  const sizes = {
+    'none': 0,
+    'xs': 4,
+    'sm': 8,
+    'md': 16,
+    'lg': 24,
+    'xl': 32
+  };
+  
+  const paddingValue = sizes[size] || 0;
+  
+  switch (direction) {
+    case 'x':
+      node.paddingLeft = paddingValue;
+      node.paddingRight = paddingValue;
+      break;
+    case 'y':
+      node.paddingTop = paddingValue;
+      node.paddingBottom = paddingValue;
+      break;
+    case 'l':
+      node.paddingLeft = paddingValue;
+      break;
+    case 'r':
+      node.paddingRight = paddingValue;
+      break;
+    case 't':
+      node.paddingTop = paddingValue;
+      break;
+    case 'b':
+      node.paddingBottom = paddingValue;
+      break;
+  }
+}
+
+// Função auxiliar para criar efeitos de sombra
+function createShadowEffect(offsetX1, offsetY1, blur1, opacity1, offsetX2, offsetY2, blur2, opacity2) {
+  return [
+    {
+      type: 'DROP_SHADOW',
+      color: { r: 0, g: 0, b: 0, a: opacity1 },
+      offset: { x: offsetX1, y: offsetY1 },
+      radius: blur1,
+      visible: true,
+      blendMode: 'NORMAL'
+    },
+    {
+      type: 'DROP_SHADOW',
+      color: { r: 0, g: 0, b: 0, a: opacity2 },
+      offset: { x: offsetX2, y: offsetY2 },
+      radius: blur2,
+      visible: true,
+      blendMode: 'NORMAL'
+    }
+  ];
+}
 
 // Mapeamento de componentes básicos
 var quasarComponentMap = {
@@ -116,7 +283,7 @@ var quasarFormComponents = {
       primaryAxisAlignItems: 'CENTER',
       counterAxisAlignItems: 'CENTER',
       itemSpacing: 8,
-      fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1, a: 0 } }]
+      fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 0 }]
     }
   },
   'q-toggle': {
@@ -128,7 +295,7 @@ var quasarFormComponents = {
       primaryAxisAlignItems: 'CENTER',
       counterAxisAlignItems: 'CENTER',
       itemSpacing: 8,
-      fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1, a: 0 } }]
+      fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 0 }]
     }
   },
   'q-radio': {
@@ -140,7 +307,7 @@ var quasarFormComponents = {
       primaryAxisAlignItems: 'CENTER',
       counterAxisAlignItems: 'CENTER',
       itemSpacing: 8,
-      fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1, a: 0 } }]
+      fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 0 }]
     }
   },
   'q-select': {
@@ -337,6 +504,46 @@ quasarComponentMap['div'] = {
     fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }]
   }
 };
+// Determinar cor de texto contrastante com base na cor de fundo
+function getContrastingTextColor(bgColor) {
+  // Usar fórmula de luminosidade perceptiva
+  const luminance = 0.299 * bgColor.r + 0.587 * bgColor.g + 0.114 * bgColor.b;
+  return luminance > 0.5 ? { r: 0, g: 0, b: 0 } : { r: 1, g: 1, b: 1 };
+}
+// Adicionar um separador ao card
+async function addSeparator(cardFrame) {
+  const separator = figma.createRectangle();
+  separator.name = "q-separator";
+  separator.resize(cardFrame.width, 1);
+  separator.fills = [{ type: 'SOLID', color: { r: 0.9, g: 0.9, b: 0.9 } }];
+  
+  // Ajustar o layout para encaixar o separador
+  cardFrame.appendChild(separator);
+  
+  return separator;
+}
+// Extrair classes CSS de um elemento HTML
+function extractClasses(html, tagName) {
+  var classRegex = new RegExp('<' + tagName + '[^>]*class=["\'](.*?)["\'][^>]*>', 'i');
+  var match = html.match(classRegex);
+  
+  if (match && match[1]) {
+    return match[1].trim().split(/\s+/).filter(function(cls) {
+      return cls.length > 0;
+    });
+  }
+  
+  return [];
+}
+
+// Função auxiliar para determinar a cor de texto contrastante
+function getContrastingTextColor(bgColor) {
+  // Calcula luminosidade (fórmula simplificada)
+  var luminance = 0.299 * bgColor.r + 0.587 * bgColor.g + 0.114 * bgColor.b;
+  
+  // Se a luminosidade for alta (fundo claro), use texto escuro, caso contrário use texto claro
+  return luminance > 0.5 ? { r: 0, g: 0, b: 0 } : { r: 1, g: 1, b: 1 };
+}
 // Extrair o HTML do template
 function extractTemplateContent(code) {
   var templateMatch = code.match(/<template>\s*([\s\S]*?)\s*<\/template>/);
@@ -454,28 +661,75 @@ function applyComponentProperties(figmaNode, componentType) {
 }
 
 // Criar texto para um componente
-async function createText(content, options) {
-  options = options || {};
-  
-  var textNode = figma.createText();
-  textNode.characters = content || '';
-  
-  // Configurações padrão
-  textNode.fontSize = options.fontSize || 14;
-  
-  if (options.color) {
-    textNode.fills = [{ type: 'SOLID', color: options.color }];
+async function createText(content, options = {}) {
+  try {
+    console.log('Criando texto:', content);
+    
+    var textNode = figma.createText();
+    
+    // Garantir que a fonte esteja carregada antes de definir o texto
+    await figma.loadFontAsync({
+      family: options.fontFamily || "Inter",
+      style: options.fontStyle || "Regular"
+    });
+    
+    // Definir o texto
+    textNode.characters = content || '';
+    
+    // Configurações de texto
+    if (options.fontSize) textNode.fontSize = options.fontSize;
+    if (options.fontWeight) {
+      if (options.fontWeight === 'bold') {
+        await figma.loadFontAsync({ family: "Inter", style: "Bold" });
+        textNode.fontName = { family: "Inter", style: "Bold" };
+      } else if (options.fontWeight === 'medium') {
+        await figma.loadFontAsync({ family: "Inter", style: "Medium" });
+        textNode.fontName = { family: "Inter", style: "Medium" };
+      }
+    }
+    
+    // Cor do texto
+    if (options.color) {
+      textNode.fills = [{ type: 'SOLID', color: options.color }];
+    }
+    
+    // Opacidade
+    if (options.opacity !== undefined && textNode.fills && textNode.fills.length > 0) {
+      // Aplicar opacidade às fills sem usar spread operator
+      var newFills = [];
+      for (var i = 0; i < textNode.fills.length; i++) {
+        var fill = textNode.fills[i];
+        var newFill = Object.assign({}, fill); // Cria uma cópia do objeto
+        newFill.opacity = options.opacity;
+        newFills.push(newFill);
+      }
+      textNode.fills = newFills;
+    }
+    
+    // Alinhamento
+    if (options.alignment) {
+      textNode.textAlignHorizontal = options.alignment;
+    }
+    
+    if (options.verticalAlignment) {
+      textNode.textAlignVertical = options.verticalAlignment;
+    }
+    
+    console.log('Texto criado com sucesso');
+    return textNode;
+  } catch (error) {
+    console.error('Erro ao criar texto:', error);
+    // Tentar criar um texto simples como fallback
+    try {
+      var fallbackText = figma.createText();
+      await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+      fallbackText.characters = content || '[texto]';
+      return fallbackText;
+    } catch (innerError) {
+      console.error('Erro no fallback de texto:', innerError);
+      return null;
+    }
   }
-  
-  if (options.alignment) {
-    textNode.textAlignHorizontal = options.alignment;
-  }
-  
-  if (options.verticalAlignment) {
-    textNode.textAlignVertical = options.verticalAlignment;
-  }
-  
-  return textNode;
 }
 
 // Criar um retângulo ou quadrado
@@ -524,83 +778,75 @@ async function createQuasarButton(html) {
   var buttonFrame = figma.createFrame();
   buttonFrame.name = "q-btn";
   
-  // Aplicar propriedades do botão
-  applyComponentProperties(buttonFrame, 'q-btn');
+  // Configurações básicas do botão
+  buttonFrame.layoutMode = "HORIZONTAL";
+  buttonFrame.primaryAxisSizingMode = "AUTO";
+  buttonFrame.counterAxisSizingMode = "AUTO";
+  buttonFrame.primaryAxisAlignItems = "CENTER";
+  buttonFrame.counterAxisAlignItems = "CENTER";
+  buttonFrame.cornerRadius = 4;
+  buttonFrame.paddingLeft = 16;
+  buttonFrame.paddingRight = 16;
+  buttonFrame.paddingTop = 8;
+  buttonFrame.paddingBottom = 8;
+  
+  // Verificar se é um botão flat
+  var isFlat = html.includes('flat') || extractAttribute(html, 'flat') === 'true';
   
   // Verificar se há um atributo de cor
   var colorAttr = extractAttribute(html, 'color');
-  if (colorAttr && quasarColors[colorAttr]) {
-    buttonFrame.fills = [{ type: 'SOLID', color: quasarColors[colorAttr] }];
-  }
+  var btnColor = colorAttr && quasarColors[colorAttr] ? quasarColors[colorAttr] : quasarColors.primary;
   
-  // Extrair o texto do label, se houver
-  var labelMatch = html.match(/label="([^"]+)"/);
-  if (labelMatch) {
-    var textNode = await createText(labelMatch[1], {
-      color: { r: 1, g: 1, b: 1 },
-      alignment: 'CENTER',
-      verticalAlignment: 'CENTER'
-    });
-    buttonFrame.appendChild(textNode);
+  if (isFlat) {
+  // Botão flat - sem fundo, apenas texto colorido
+  btnFrame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 0 }];
+  
+  // Aqui está a correção para a cor do texto
+  var textColor;
+  
+  if (colorAttr) {
+    // Se tem um atributo de cor explícito, usar essa cor
+    textColor = btnColor;
   } else {
-    // Verificar se há conteúdo interno do botão
-    var btnContent = html.match(/<q-btn[^>]*>([\s\S]*?)<\/q-btn>/);
-    if (btnContent && btnContent[1] && btnContent[1].trim()) {
-      // Limpar tags HTML para obter apenas o texto
-      var cleanContent = btnContent[1].replace(/<[^>]*>/g, ' ').trim();
-      if (cleanContent) {
-        var textNode = await createText(cleanContent.substring(0, 50), {
-          color: { r: 1, g: 1, b: 1 },
-          alignment: 'CENTER',
-          verticalAlignment: 'CENTER'
-        });
-        buttonFrame.appendChild(textNode);
-      } else {
-        // Se não conseguir extrair o texto, usar genérico
-        var textNode = await createText("Botão", {
-          color: { r: 1, g: 1, b: 1 },
-          alignment: 'CENTER',
-          verticalAlignment: 'CENTER'
-        });
-        buttonFrame.appendChild(textNode);
-      }
-    } else {
-      // Se não houver conteúdo, usar texto genérico
-      var textNode = await createText("Botão", {
-        color: { r: 1, g: 1, b: 1 },
-        alignment: 'CENTER',
-        verticalAlignment: 'CENTER'
-      });
-      buttonFrame.appendChild(textNode);
-    }
+    // Se não tem cor especificada, usar cinza escuro padrão (#474747)
+    textColor = { r: 0.28, g: 0.28, b: 0.28 }; // Equivalente a #474747
   }
   
-  // Verificar flat, outline, round
-  if (html.includes('flat') || extractAttribute(html, 'flat') === 'true') {
-    buttonFrame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1, a: 0 } }];
-    // Atualizar cor do texto para a cor do botão
-    if (buttonFrame.children.length > 0 && buttonFrame.children[0].type === 'TEXT') {
-      var colorValue = colorAttr && quasarColors[colorAttr] ? quasarColors[colorAttr] : quasarColors.primary;
-      buttonFrame.children[0].fills = [{ type: 'SOLID', color: colorValue }];
-    }
-  }
+  var textNode = await createText(btnText, {
+    color: textColor,
+    fontWeight: 'medium'
+  });
+  btnFrame.appendChild(textNode);
+} else {
+  // Botão normal com fundo colorido - não precisa mudar
+  btnFrame.fills = [{ type: 'SOLID', color: btnColor }];
   
-  if (html.includes('outline') || extractAttribute(html, 'outline') === 'true') {
-    buttonFrame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
-    var colorValue = colorAttr && quasarColors[colorAttr] ? quasarColors[colorAttr] : quasarColors.primary;
-    buttonFrame.strokes = [{ type: 'SOLID', color: colorValue }];
-    buttonFrame.strokeWeight = 1;
-    // Atualizar cor do texto para a cor do botão
-    if (buttonFrame.children.length > 0 && buttonFrame.children[0].type === 'TEXT') {
-      buttonFrame.children[0].fills = [{ type: 'SOLID', color: colorValue }];
-    }
-  }
-  
-  if (html.includes('round') || extractAttribute(html, 'round') === 'true') {
-    buttonFrame.cornerRadius = 999; // Valor alto para cantos completamente arredondados
-  }
-  
+  // Texto branco para contraste
+  var textNode = await createText(btnText, {
+    color: { r: 1, g: 1, b: 1 },
+    fontWeight: 'medium'
+  });
+  btnFrame.appendChild(textNode);
+}  
   return buttonFrame;
+}
+
+// Função auxiliar para extrair o texto do botão
+function getButtonText(html) {
+  // Tentar extrair do atributo label
+  var labelAttr = extractAttribute(html, 'label');
+  if (labelAttr) return labelAttr;
+  
+  // Tentar extrair do conteúdo da tag
+  var contentMatch = html.match(/<q-btn[^>]*>([\s\S]*?)<\/q-btn>/);
+  if (contentMatch && contentMatch[1]) {
+    // Limpar tags HTML para obter apenas o texto
+    var cleanContent = contentMatch[1].replace(/<[^>]*>/g, ' ').trim();
+    if (cleanContent) return cleanContent;
+  }
+  
+  // Texto padrão
+  return "Botão";
 }
 
 // Criar um card Quasar
@@ -608,94 +854,94 @@ async function createQuasarCard(html) {
   var cardFrame = figma.createFrame();
   cardFrame.name = "q-card";
   
-  // Aplicar propriedades do card
-  applyComponentProperties(cardFrame, 'q-card');
+  // Configuração básica do card
+  cardFrame.layoutMode = "VERTICAL";
+  cardFrame.primaryAxisSizingMode = "AUTO";
+  cardFrame.counterAxisSizingMode = "AUTO";
+  cardFrame.cornerRadius = 4;
+  cardFrame.itemSpacing = 0;
   
-  // Verificar se há um atributo de cor para o card
-  var colorAttr = extractAttribute(html, 'color');
-  if (colorAttr && quasarColors[colorAttr]) {
-    cardFrame.fills = [{ type: 'SOLID', color: quasarColors[colorAttr] }];
+  // Adicionar sombra ao card
+  cardFrame.effects = [{
+    type: 'DROP_SHADOW',
+    color: { r: 0, g: 0, b: 0, a: 0.2 },
+    offset: { x: 0, y: 2 },
+    radius: 4,
+    visible: true,
+    blendMode: 'NORMAL'
+  }];
+  
+  // Cor branca padrão
+  cardFrame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
+  
+  // Extrair classes do card
+  var cardClasses = extractClasses(html, 'q-card');
+  
+  // Verificar cores específicas para o card
+  for (var i = 0; i < cardClasses.length; i++) {
+    var className = cardClasses[i];
+    if (className.startsWith('bg-')) {
+      var colorName = className.substring(3);
+      if (quasarColors[colorName]) {
+        cardFrame.fills = [{ type: 'SOLID', color: quasarColors[colorName] }];
+        break;
+      }
+    }
   }
   
-  // Verificar se há uma classe bg-* para a cor do card
-  var bgClassMatch = html.match(/class="[^"]*\bbg-([a-z]+)\b/);
-  if (bgClassMatch && bgClassMatch[1] && quasarColors[bgClassMatch[1]]) {
-    cardFrame.fills = [{ type: 'SOLID', color: quasarColors[bgClassMatch[1]] }];
-  }
-  
-  // Verificar se o código contém q-card-section
-  if (html.includes('<q-card-section')) {
-    // Pode haver múltiplas seções de card
-    var cardSectionMatches = html.match(/<q-card-section[^>]*>[\s\S]*?<\/q-card-section>/g);
+  try {
+    // Processar seções do card - REVISADO
+    console.log('Processando seções do card');
     
-    if (cardSectionMatches && cardSectionMatches.length > 0) {
-      for (var i = 0; i < cardSectionMatches.length; i++) {
-        await addCardSection(cardFrame, cardSectionMatches[i]);
+    // 1. Obter todas as seções usando regex
+    var sectionRegex = /<q-card-section[^>]*>[\s\S]*?<\/q-card-section>/g;
+    var sectionMatch;
+    var sections = [];
+    
+    while ((sectionMatch = sectionRegex.exec(html)) !== null) {
+      sections.push(sectionMatch[0]);
+    }
+    
+    console.log('Total de seções encontradas:', sections.length);
+    
+    // 2. Processar cada seção sequencialmente
+    if (sections.length > 0) {
+      for (var i = 0; i < sections.length; i++) {
+        console.log('Processando seção', i + 1);
+        // Aqui chamamos a função addCardSection para cada seção
+        // e esperamos que ela adicione a seção ao cardFrame
+        await addCardSection(cardFrame, sections[i]);
       }
     } else {
-      // Se não houver match específico mas existe a tag, criar uma seção genérica
-      var cardSectionFrame = figma.createFrame();
-      cardSectionFrame.name = "q-card-section";
-      applyComponentProperties(cardSectionFrame, 'q-card-section');
-      
-      // Adicionar texto de exemplo
-      var textNode = await createText("Conteúdo da Seção");
-      cardSectionFrame.appendChild(textNode);
-      
-      // Adicionar a seção ao card
-      cardFrame.appendChild(cardSectionFrame);
+      console.log('Nenhuma seção encontrada no card');
     }
-  } else {
-    // Se não houver q-card-section, adicionar texto genérico
-    var textNode = await createText("Conteúdo do Card");
-    cardFrame.appendChild(textNode);
+  } catch (error) {
+    console.error('Erro ao processar seções:', error);
   }
   
-  // Verificar se tem card-actions
+  // Processar separadores
+  if (html.includes('<q-separator')) {
+    var separator = figma.createRectangle();
+    separator.name = "q-separator";
+    separator.resize(300, 1);
+    separator.fills = [{ type: 'SOLID', color: { r: 0.9, g: 0.9, b: 0.9 } }];
+    cardFrame.appendChild(separator);
+    console.log('Separador adicionado ao card');
+  }
+  
+  // Processar ações do card
   if (html.includes('<q-card-actions')) {
-    await addCardActions(cardFrame, html);
+    var actionsFrame = await addCardActions(cardFrame, html);
+    console.log('Ações processadas e adicionadas ao card');
+  }
+  
+  // Verificar o número de filhos do card para debug
+  console.log('Total de filhos no card após processamento:', cardFrame.children.length);
+  for (var i = 0; i < cardFrame.children.length; i++) {
+    console.log('  Filho', i + 1, ':', cardFrame.children[i].name);
   }
   
   return cardFrame;
-}
-
-// Adicionar uma seção de card
-async function addCardSection(cardFrame, sectionHtml) {
-  var cardSectionFrame = figma.createFrame();
-  cardSectionFrame.name = "q-card-section";
-  
-  // Aplicar propriedades da seção do card
-  applyComponentProperties(cardSectionFrame, 'q-card-section');
-  
-  // Verificar se há um atributo de cor para a seção do card
-  var sectionColorAttr = extractAttribute(sectionHtml, 'color');
-  if (sectionColorAttr && quasarColors[sectionColorAttr]) {
-    cardSectionFrame.fills = [{ type: 'SOLID', color: quasarColors[sectionColorAttr] }];
-  }
-  
-  // Procurar por título (text-h6)
-  if (sectionHtml.includes('text-h6')) {
-    var titleText = sectionHtml.match(/<div class="[^"]*text-h6[^"]*"[^>]*>(.*?)<\/div>/);
-    if (titleText && titleText[1]) {
-      var titleNode = await createText(titleText[1].trim(), { fontSize: 18 });
-      cardSectionFrame.appendChild(titleNode);
-    }
-  }
-  
-  // Procurar por subtítulo (text-subtitle2)
-  if (sectionHtml.includes('text-subtitle2')) {
-    var subtitleText = sectionHtml.match(/<div class="[^"]*text-subtitle2[^"]*"[^>]*>(.*?)<\/div>/);
-    if (subtitleText && subtitleText[1]) {
-      var subtitleNode = await createText(subtitleText[1].trim(), {
-        fontSize: 14,
-        color: { r: 0.4, g: 0.4, b: 0.4 }
-      });
-      cardSectionFrame.appendChild(subtitleNode);
-    }
-  }
-  
-  // Adicionar a seção ao card
-  cardFrame.appendChild(cardSectionFrame);
 }
 
 // Adicionar ações ao card
@@ -712,27 +958,24 @@ async function addCardActions(cardFrame, html) {
   var cardActionsFrame = figma.createFrame();
   cardActionsFrame.name = "q-card-actions";
   
-  // Extrair o conteúdo das ações
-  var actionsContent = actionsMatch[1].trim();
-  console.log('Conteúdo das ações:', actionsContent);
+  // Configuração para ocupar toda a largura do card
+  cardActionsFrame.layoutMode = "HORIZONTAL";
+  cardActionsFrame.primaryAxisSizingMode = "AUTO";
+  cardActionsFrame.counterAxisSizingMode = "AUTO";
+  
+  // Definir margens internas
+  cardActionsFrame.paddingLeft = 8;
+  cardActionsFrame.paddingRight = 8;
+  cardActionsFrame.paddingTop = 8;
+  cardActionsFrame.paddingBottom = 8;
+  cardActionsFrame.itemSpacing = 8;
+  
+  // Cor de fundo branca padrão
+  cardActionsFrame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
   
   // Extrair tag de abertura
   var actionsOpenTag = html.match(/<q-card-actions[^>]*>/);
   var actionsOpenTagStr = actionsOpenTag ? actionsOpenTag[0] : '';
-  
-  // Verificar se as ações são verticais
-  var isVertical = actionsOpenTagStr.includes('vertical') || 
-                   extractAttribute(actionsOpenTagStr, 'vertical') === 'true';
-  
-  if (isVertical) {
-    cardActionsFrame.layoutMode = "VERTICAL";
-    cardActionsFrame.primaryAxisSizingMode = "AUTO";
-    cardActionsFrame.counterAxisSizingMode = "AUTO";
-    cardActionsFrame.itemSpacing = 8;
-  } else {
-    // Layout horizontal padrão
-    applyComponentProperties(cardActionsFrame, 'q-card-actions');
-  }
   
   // Verificar alinhamento
   var align = extractAttribute(actionsOpenTagStr, 'align');
@@ -740,103 +983,369 @@ async function addCardActions(cardFrame, html) {
   
   if (align) {
     if (align === 'right') {
-      cardActionsFrame.primaryAxisAlignItems = 'END';
+      cardActionsFrame.primaryAxisAlignItems = 'MAX';
     } else if (align === 'center') {
       cardActionsFrame.primaryAxisAlignItems = 'CENTER';
     } else if (align === 'between') {
       cardActionsFrame.primaryAxisAlignItems = 'SPACE_BETWEEN';
-    } else if (align === 'around') {
-      cardActionsFrame.primaryAxisAlignItems = 'SPACE_AROUND';
-    } else if (align === 'evenly') {
-      cardActionsFrame.primaryAxisAlignItems = 'SPACE_EVENLY';
+    } else if (align === 'around' || align === 'evenly') {
+      cardActionsFrame.primaryAxisAlignItems = 'SPACE_BETWEEN';
+    } else if (align === 'left') {
+      cardActionsFrame.primaryAxisAlignItems = 'MIN';
     }
   }
   
-  // Extrair todos os botões usando regex mais robusta
-  var buttonRegex = /<q-btn[^>]*?>(?:[\s\S]*?<\/q-btn>|)/g;
-  var buttonMatches = actionsContent.match(buttonRegex);
+  // Extrair todos os botões
+  var buttonRegex = /<q-btn[^>]*?>(?:[\s\S]*?<\/q-btn>|\/?>)/g;
+  var buttonMatches = [];
+  var match;
   
-  console.log('Botões encontrados:', buttonMatches ? buttonMatches.length : 0);
+  // Vamos usar exec em um loop para capturar todos os matches
+  while ((match = buttonRegex.exec(actionsMatch[1])) !== null) {
+    buttonMatches.push(match[0]);
+  }
+  
+  console.log('Botões encontrados:', buttonMatches.length);
   
   // Se encontrou botões, criar cada um deles
-  if (buttonMatches && buttonMatches.length > 0) {
+  if (buttonMatches.length > 0) {
     for (var j = 0; j < buttonMatches.length; j++) {
-      console.log('Processando botão', j + 1, 'do card');
-      var btnHtml = buttonMatches[j];
-      
-      // Verificar se é um botão auto-fechado
-      if (!btnHtml.includes('</q-btn>')) {
-        btnHtml = btnHtml.replace(/\/>$/, '></q-btn>');
+      try {
+        console.log('Processando botão', j + 1, 'do card');
+        var btnHtml = buttonMatches[j];
+        
+        // Garantir que o HTML do botão está completo
+        if (!btnHtml.includes('</q-btn>') && !btnHtml.includes('/>')) {
+          btnHtml += '</q-btn>';
+        }
+        
+        // Verificar se é um botão flat
+        var isFlat = btnHtml.includes('flat') || extractAttribute(btnHtml, 'flat') === 'true';
+        
+        // Determinar o texto do botão
+        var btnLabel = extractAttribute(btnHtml, 'label');
+        var btnText = btnLabel;
+        
+        if (!btnText) {
+          // Tentar extrair do conteúdo interno
+          var contentMatch = btnHtml.match(/<q-btn[^>]*>([\s\S]*?)<\/q-btn>/);
+          if (contentMatch && contentMatch[1]) {
+            btnText = contentMatch[1].replace(/<[^>]*>/g, '').trim();
+          }
+        }
+        
+        if (!btnText) {
+          btnText = "Action " + (j + 1);
+        }
+        
+        // Determinar a cor do botão
+        var colorAttr = extractAttribute(btnHtml, 'color');
+        var btnColor = colorAttr && quasarColors[colorAttr] 
+                      ? quasarColors[colorAttr] 
+                      : quasarColors.primary;
+        
+        // Criar o frame do botão
+        var btnFrame = figma.createFrame();
+        btnFrame.name = "q-btn";
+        btnFrame.layoutMode = "HORIZONTAL";
+        btnFrame.primaryAxisSizingMode = "AUTO";
+        btnFrame.counterAxisSizingMode = "AUTO";
+        btnFrame.primaryAxisAlignItems = "CENTER";
+        btnFrame.counterAxisAlignItems = "CENTER";
+        btnFrame.paddingLeft = 12;
+        btnFrame.paddingRight = 12;
+        btnFrame.paddingTop = 8;
+        btnFrame.paddingBottom = 8;
+        btnFrame.cornerRadius = 4;
+        
+        if (isFlat) {
+          // Botão flat - sem fundo, apenas texto colorido
+          btnFrame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 0 }];
+          
+          // CORREÇÃO AQUI: Cor de texto padrão para botões flat
+          var textColor;
+          
+          if (colorAttr) {
+            // Se foi especificada uma cor, usá-la para o texto
+            textColor = btnColor;
+            console.log('Usando cor especificada para texto do botão:', colorAttr);
+          } else {
+            // Caso contrário, usar cor cinza escuro padrão (#474747)
+            textColor = { r: 0.28, g: 0.28, b: 0.28 };
+            console.log('Usando cor padrão cinza para texto do botão');
+          }
+          
+          var textNode = await createText(btnText, {
+            color: textColor,
+            fontWeight: 'medium'
+          });
+          btnFrame.appendChild(textNode);
+        } else {
+          // Botão normal com fundo colorido
+          btnFrame.fills = [{ type: 'SOLID', color: btnColor }];
+          
+          // Texto branco para contraste
+          var textNode = await createText(btnText, {
+            color: { r: 1, g: 1, b: 1 },
+            fontWeight: 'medium'
+          });
+          btnFrame.appendChild(textNode);
+        }
+        
+        // Adicionar o botão ao frame de ações
+        cardActionsFrame.appendChild(btnFrame);
+        console.log('Botão adicionado ao frame de ações');
+      } catch (error) {
+        console.error('Erro ao processar botão:', error);
       }
-      
-      // Extrair atributos do botão
-      var isFlat = btnHtml.includes('flat') || extractAttribute(btnHtml, 'flat') === 'true';
-      var btnLabel = extractAttribute(btnHtml, 'label') || 'Action ' + (j + 1);
-      var btnColor = extractAttribute(btnHtml, 'color') || 'primary';
-      
-      // Criar um botão padrão em vez de usar createQuasarButton para evitar problemas
-      var actionBtn = figma.createFrame();
-      actionBtn.name = "q-btn";
-      actionBtn.layoutMode = "HORIZONTAL";
-      actionBtn.primaryAxisSizingMode = "AUTO";
-      actionBtn.counterAxisSizingMode = "AUTO";
-      actionBtn.primaryAxisAlignItems = "CENTER";
-      actionBtn.counterAxisAlignItems = "CENTER";
-      actionBtn.paddingLeft = 12;
-      actionBtn.paddingRight = 12;
-      actionBtn.paddingTop = 6;
-      actionBtn.paddingBottom = 6;
-      
-      // Configurar estilo (flat vs normal)
-      if (isFlat) {
-        actionBtn.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1, a: 0 } }];
-      } else {
-        actionBtn.fills = [{ type: 'SOLID', color: quasarColors[btnColor] || quasarColors.primary }];
-      }
-      
-      // Adicionar texto do botão
-      var btnText = await createText(btnLabel, {
-        color: isFlat ? quasarColors[btnColor] || quasarColors.primary : { r: 1, g: 1, b: 1 },
-        alignment: 'CENTER',
-        verticalAlignment: 'CENTER'
-      });
-      
-      actionBtn.appendChild(btnText);
-      cardActionsFrame.appendChild(actionBtn);
     }
   } else {
-    console.log('Nenhum botão encontrado nas ações, criando botões genéricos');
+    console.log('Nenhum botão encontrado nas ações do card');
     
-    // Se não encontrou botões específicos, criar botões genéricos
-    var buttonCount = 2; // Padrão de 2 botões
-    
-    for (var j = 0; j < buttonCount; j++) {
-      var actionBtn = figma.createFrame();
-      actionBtn.name = "q-btn";
-      actionBtn.layoutMode = "HORIZONTAL";
-      actionBtn.primaryAxisSizingMode = "AUTO";
-      actionBtn.counterAxisSizingMode = "AUTO";
-      actionBtn.primaryAxisAlignItems = "CENTER";
-      actionBtn.counterAxisAlignItems = "CENTER";
-      actionBtn.paddingLeft = 12;
-      actionBtn.paddingRight = 12;
-      actionBtn.paddingTop = 6;
-      actionBtn.paddingBottom = 6;
-      actionBtn.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1, a: 0 } }]; // Botão flat por padrão
+    // Adicionar botões genéricos como fallback
+    for (var i = 0; i < 2; i++) {
+      var fallbackBtn = figma.createFrame();
+      fallbackBtn.name = "q-btn";
+      fallbackBtn.layoutMode = "HORIZONTAL";
+      fallbackBtn.primaryAxisSizingMode = "AUTO";
+      fallbackBtn.counterAxisSizingMode = "AUTO";
+      fallbackBtn.primaryAxisAlignItems = "CENTER";
+      fallbackBtn.counterAxisAlignItems = "CENTER";
+      fallbackBtn.paddingLeft = 12;
+      fallbackBtn.paddingRight = 12;
+      fallbackBtn.paddingTop = 8;
+      fallbackBtn.paddingBottom = 8;
+      fallbackBtn.cornerRadius = 4;
+      fallbackBtn.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 0 }];
       
-      var btnText = await createText("Action " + (j + 1), {
-        color: quasarColors.primary,
-        alignment: 'CENTER',
-        verticalAlignment: 'CENTER'
+      // CORREÇÃO AQUI: Usar cor cinza escuro padrão para botões genéricos
+      var fallbackText = await createText("Action " + (i + 1), {
+        color: { r: 0.28, g: 0.28, b: 0.28 },
+        fontWeight: 'medium'
       });
-      actionBtn.appendChild(btnText);
-      
-      cardActionsFrame.appendChild(actionBtn);
+      fallbackBtn.appendChild(fallbackText);
+      cardActionsFrame.appendChild(fallbackBtn);
     }
   }
   
   // Adicionar o frame de ações ao card
   cardFrame.appendChild(cardActionsFrame);
+  console.log('Frame de ações adicionado ao card');
+  
+  // Definir a largura explicitamente
+  try {
+    // Definir o tamanho diretamente para preencher o pai
+    cardActionsFrame.layoutAlign = "STRETCH";
+    
+    // Tenta definir a largura manualmente para a largura do card
+    var parentWidth = cardFrame.width || 300;
+    cardActionsFrame.resize(parentWidth, cardActionsFrame.height);
+    
+    console.log('Largura do q-card-actions definida para', parentWidth);
+  } catch (error) {
+    console.error('Erro ao ajustar largura do q-card-actions:', error);
+  }
+  
+  return cardActionsFrame;
+}
+
+// Função auxiliar para determinar cor de texto contrastante
+function getContrastingTextColor(bgColor) {
+  // Calcula luminosidade aproximada (fórmula simplificada)
+  const luminance = 0.299 * bgColor.r + 0.587 * bgColor.g + 0.114 * bgColor.b;
+  
+  // Se a luminosidade for alta (fundo claro), use texto escuro, caso contrário use texto claro
+  return luminance > 0.5 ? { r: 0, g: 0, b: 0 } : { r: 1, g: 1, b: 1 };
+}
+
+// Adicionar ações ao card
+async function addCardActions(cardFrame, html) {
+  console.log('Processando ações do card');
+  
+  // Extrair a seção q-card-actions
+  var actionsMatch = html.match(/<q-card-actions[^>]*>([\s\S]*?)<\/q-card-actions>/);
+  if (!actionsMatch || !actionsMatch[1]) {
+    console.log('Não foi possível extrair o conteúdo de q-card-actions');
+    return;
+  }
+  
+  var cardActionsFrame = figma.createFrame();
+  cardActionsFrame.name = "q-card-actions";
+  
+  // Configuração para ocupar toda a largura do card
+  cardActionsFrame.layoutMode = "HORIZONTAL";
+  cardActionsFrame.primaryAxisSizingMode = "AUTO";
+  cardActionsFrame.counterAxisSizingMode = "AUTO";
+  
+  // Definir margens internas
+  cardActionsFrame.paddingLeft = 8;
+  cardActionsFrame.paddingRight = 8;
+  cardActionsFrame.paddingTop = 8;
+  cardActionsFrame.paddingBottom = 8;
+  cardActionsFrame.itemSpacing = 8;
+  
+  // Cor de fundo branca padrão
+  cardActionsFrame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
+  
+  // Extrair tag de abertura
+  var actionsOpenTag = html.match(/<q-card-actions[^>]*>/);
+  var actionsOpenTagStr = actionsOpenTag ? actionsOpenTag[0] : '';
+  
+  // Verificar alinhamento
+  var align = extractAttribute(actionsOpenTagStr, 'align');
+  console.log('Alinhamento das ações:', align);
+  
+  if (align) {
+    if (align === 'right') {
+      cardActionsFrame.primaryAxisAlignItems = 'MAX';
+    } else if (align === 'center') {
+      cardActionsFrame.primaryAxisAlignItems = 'CENTER';
+    } else if (align === 'between') {
+      cardActionsFrame.primaryAxisAlignItems = 'SPACE_BETWEEN';
+    } else if (align === 'around' || align === 'evenly') {
+      cardActionsFrame.primaryAxisAlignItems = 'SPACE_BETWEEN';
+    } else if (align === 'left') {
+      cardActionsFrame.primaryAxisAlignItems = 'MIN';
+    }
+  }
+  
+  // Extrair todos os botões
+  var buttonRegex = /<q-btn[^>]*?>(?:[\s\S]*?<\/q-btn>|\/?>)/g;
+  var buttonMatches = [];
+  var match;
+  
+  while (match = buttonRegex.exec(actionsMatch[1])) {
+    buttonMatches.push(match[0]);
+  }
+  
+  console.log('Botões encontrados:', buttonMatches.length);
+  
+  // Se encontrou botões, criar cada um deles
+  if (buttonMatches.length > 0) {
+    for (var j = 0; j < buttonMatches.length; j++) {
+      try {
+        console.log('Processando botão', j + 1, 'do card');
+        var btnHtml = buttonMatches[j];
+        
+        // Garantir que o HTML do botão está completo
+        if (!btnHtml.includes('</q-btn>') && !btnHtml.includes('/>')) {
+          btnHtml += '</q-btn>';
+        }
+        
+        // Verificar se é um botão flat
+        var isFlat = btnHtml.includes('flat') || extractAttribute(btnHtml, 'flat') === 'true';
+        
+        // Determinar o texto do botão
+        var btnLabel = extractAttribute(btnHtml, 'label');
+        var btnText = btnLabel;
+        
+        if (!btnText) {
+          // Tentar extrair do conteúdo interno
+          var contentMatch = btnHtml.match(/<q-btn[^>]*>([\s\S]*?)<\/q-btn>/);
+          if (contentMatch && contentMatch[1]) {
+            btnText = contentMatch[1].replace(/<[^>]*>/g, '').trim();
+          }
+        }
+        
+        if (!btnText) {
+          btnText = "Action " + (j + 1);
+        }
+        
+        // Determinar a cor do botão
+        var colorAttr = extractAttribute(btnHtml, 'color');
+        var btnColor = colorAttr && quasarColors[colorAttr] 
+                      ? quasarColors[colorAttr] 
+                      : quasarColors.primary;
+        
+        // Criar o frame do botão
+        var btnFrame = figma.createFrame();
+        btnFrame.name = "q-btn";
+        btnFrame.layoutMode = "HORIZONTAL";
+        btnFrame.primaryAxisSizingMode = "AUTO";
+        btnFrame.counterAxisSizingMode = "AUTO";
+        btnFrame.primaryAxisAlignItems = "CENTER";
+        btnFrame.counterAxisAlignItems = "CENTER";
+        btnFrame.paddingLeft = 12;
+        btnFrame.paddingRight = 12;
+        btnFrame.paddingTop = 8;
+        btnFrame.paddingBottom = 8;
+        btnFrame.cornerRadius = 4;
+        
+        if (isFlat) {
+          // Botão flat - sem fundo, apenas texto colorido
+          btnFrame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 0 }];
+          
+          // Criar o texto com a cor do botão
+          var textNode = await createText(btnText, {
+            color: btnColor,
+            fontWeight: 'medium'
+          });
+          btnFrame.appendChild(textNode);
+        } else {
+          // Botão normal com fundo colorido
+          btnFrame.fills = [{ type: 'SOLID', color: btnColor }];
+          
+          // Texto branco para contraste
+          var textNode = await createText(btnText, {
+            color: { r: 1, g: 1, b: 1 },
+            fontWeight: 'medium'
+          });
+          btnFrame.appendChild(textNode);
+        }
+        
+        // Adicionar o botão ao frame de ações
+        cardActionsFrame.appendChild(btnFrame);
+        console.log('Botão adicionado ao frame de ações');
+      } catch (error) {
+        console.error('Erro ao processar botão:', error);
+      }
+    }
+  } else {
+    console.log('Nenhum botão encontrado nas ações do card');
+    
+    // Adicionar botões genéricos como fallback
+    for (var i = 0; i < 2; i++) {
+      var fallbackBtn = figma.createFrame();
+      fallbackBtn.name = "q-btn";
+      fallbackBtn.layoutMode = "HORIZONTAL";
+      fallbackBtn.primaryAxisSizingMode = "AUTO";
+      fallbackBtn.counterAxisSizingMode = "AUTO";
+      fallbackBtn.primaryAxisAlignItems = "CENTER";
+      fallbackBtn.counterAxisAlignItems = "CENTER";
+      fallbackBtn.paddingLeft = 12;
+      fallbackBtn.paddingRight = 12;
+      fallbackBtn.paddingTop = 8;
+      fallbackBtn.paddingBottom = 8;
+      fallbackBtn.cornerRadius = 4;
+      fallbackBtn.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 0 }];
+      
+      var fallbackText = await createText("Action " + (i + 1), {
+        color: quasarColors.primary,
+        fontWeight: 'medium'
+      });
+      fallbackBtn.appendChild(fallbackText);
+      cardActionsFrame.appendChild(fallbackBtn);
+    }
+  }
+  
+  // Adicionar o frame de ações ao card
+  cardFrame.appendChild(cardActionsFrame);
+  console.log('Frame de ações adicionado ao card');
+  
+  // Definir a largura explicitamente (sem setTimeout)
+  try {
+    // Definir o tamanho diretamente para preencher o pai
+    cardActionsFrame.layoutAlign = "STRETCH";
+    
+    // Tenta definir a largura manualmente para a largura do card
+    var parentWidth = cardFrame.width || 300;
+    cardActionsFrame.resize(parentWidth, cardActionsFrame.height);
+    
+    console.log('Largura do q-card-actions definida para', parentWidth);
+  } catch (error) {
+    console.error('Erro ao ajustar largura do q-card-actions:', error);
+  }
+  
   return cardActionsFrame;
 }
 
